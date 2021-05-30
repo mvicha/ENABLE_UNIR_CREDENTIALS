@@ -1,0 +1,83 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.40">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@1.8.4"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@1.8.4">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+      <options/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.TextParameterDefinition>
+          <name>CREDENTIALS</name>
+          <description>Introducir las credenciales proporcionadas por la cuenta educate. La estructura debe ser similar a esta (ejemplo):
+
+[default]
+aws_access_key_id=ASIAV7WB6NKBOAN3QDVD
+aws_secret_access_key=lmal9YOf6EEQgrVjSaIy9WMEWrW/13EGE84xHcES
+aws_session_token=FwoGZXIvYXdzEOT//////////wEaDFWHhP8u//5koN8evCLOAfXPJA2nvmmFWGaAbC9BT1n6+7DQ+U6uIuK9lhOcVFdHcH5cmDr75ft0gwi3q8kIGKEA2QmjS7sVnM9rFaQaug3xmxiaVS7y0Nkh63KplLFPCU6+8rTULWqzdRxtohf2Ota8oM/wlNhm1YQcv9wPbUDKwH7JoOSiwSdSVbTf2SeZlq8FaEhG8WyFrolMwqhJviaLXPeYHV7tjXa4FQKvMhXxlXdQwf2QRabENPiRDjUW2EOZV4VdsMYU+NhEqpTG+xwarPJzFUty9KRWcFbfKIms/v4FMi12ESA47Y/ZTNfnbKnla/LaD+zmEaGsagP9Iw6z1TlsluS3zGauYnP+GXi4Z4U=</description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.TextParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>ECR_URL</name>
+          <description>URL del Container Registry donde guardar las imágenes de Docker para Jenkins
+
+AWSAccountId.dkr.ecr.us-east-1.amazonaws.com</description>
+          <defaultValue>AWSAccountId.dkr.ecr.us-east-1.amazonaws.com</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.87">
+    <script>pipeline {
+    agent any
+    stages {
+        stage(&apos;Clean&apos;){    
+            steps {
+                deleteDir()
+                sh &apos;printenv&apos;
+            }
+        }
+        stage(&apos;Setup Credentials de AWS&apos;){    
+            steps {
+                deleteDir()
+                sh &quot;echo ${env.CREDENTIALS} &gt; /var/lib/jenkins/.aws/credentials&quot;
+                writeFile (file: &apos;/var/lib/jenkins/.aws/credentials&apos;, text: &quot;${env.CREDENTIALS}&quot;)
+
+            }
+        }
+        stage(&apos;Validate Credentials&apos;){    
+            steps {
+                deleteDir()
+                sh &quot;aws s3 ls&quot;
+            }
+        }
+        stage(&apos;Validate software&apos;){    
+            steps {
+                sh &apos;sam --version&apos;
+                sh &apos;aws --version&apos;
+                sh &apos;python3.8 --version&apos;
+                sh &apos;python3.7 --version&apos;
+            }
+        }
+        stage(&apos;Obtención de credenciales para Docker&apos;){
+            steps {
+                sh &quot;aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${env.ECR_URL}&quot;
+            }
+        }
+    }
+}
+</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>
