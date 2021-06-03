@@ -53,10 +53,6 @@ AWSAccountId.dkr.ecr.us-east-1.amazonaws.com</description>
                 /*writeFile(
                     file: '${HOME}/.aws/credentials',
                     text: "${env.CREDENTIALS}\nregion=us-east-1")*/
-                sh "ls -la ${HOME}"
-                sh "ls -la ${HOME}/.aws"
-                sh "cat ${HOME}/.aws/credentials"
-                echo "${HOME}/.aws/credentials"
             }
         }
         stage('Validate Credentials'){    
