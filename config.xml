@@ -49,8 +49,8 @@ AWSAccountId.dkr.ecr.us-east-1.amazonaws.com</description>
         stage(&apos;Setup Credentials de AWS&apos;){    
             steps {
                 deleteDir()
-                sh &quot;echo ${env.CREDENTIALS} &gt; /var/lib/jenkins/.aws/credentials&quot;
-                writeFile (file: &apos;/var/lib/jenkins/.aws/credentials&apos;, text: &quot;${env.CREDENTIALS}&quot;)
+                sh &quot;echo ${env.CREDENTIALS} &gt; /.aws/credentials&quot;
+                writeFile (file: &apos;/.aws/credentials&apos;, text: &quot;${env.CREDENTIALS}&quot;)
 
             }
         }
@@ -62,9 +62,7 @@ AWSAccountId.dkr.ecr.us-east-1.amazonaws.com</description>
         }
         stage(&apos;Validate software&apos;){    
             steps {
-                sh &apos;sam --version&apos;
                 sh &apos;aws --version&apos;
-                sh &apos;python3.8 --version&apos;
                 sh &apos;python3.7 --version&apos;
             }
         }
