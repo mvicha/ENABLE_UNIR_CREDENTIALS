@@ -40,35 +40,40 @@ AWSAccountId.dkr.ecr.us-east-1.amazonaws.com</description>
     <script>pipeline {
     agent any
     stages {
-        stage(&apos;Clean&apos;){    
+        stage('Clean'){    
             steps {
                 deleteDir()
-                sh &apos;printenv&apos;
+                sh 'printenv'
             }
         }
-        stage(&apos;Setup Credentials de AWS&apos;){    
+        stage('Setup Credentials de AWS'){    
             steps {
                 deleteDir()
-                sh &quot;echo ${env.CREDENTIALS} &gt; /.aws/credentials&quot;
-                writeFile (file: &apos;/.aws/credentials&apos;, text: &quot;${env.CREDENTIALS}&quot;)
-
+                sh "echo \"" + env.CREDENTIALS + "\nregion=us-east-1\" > ${HOME}/.aws/credentials"
+                /*writeFile(
+                    file: '${HOME}/.aws/credentials',
+                    text: "${env.CREDENTIALS}\nregion=us-east-1")*/
+                sh "ls -la ${HOME}"
+                sh "ls -la ${HOME}/.aws"
+                sh "cat ${HOME}/.aws/credentials"
+                echo "${HOME}/.aws/credentials"
             }
         }
-        stage(&apos;Validate Credentials&apos;){    
+        stage('Validate Credentials'){    
             steps {
                 deleteDir()
-                sh &quot;aws s3 ls&quot;
+                sh "aws s3 ls"
             }
         }
-        stage(&apos;Validate software&apos;){    
+        stage('Validate software'){    
             steps {
-                sh &apos;aws --version&apos;
-                sh &apos;python3.7 --version&apos;
+                sh 'aws --version'
+                sh 'python3.8 --version'
             }
         }
-        stage(&apos;Obtención de credenciales para Docker&apos;){
+        stage('Obtención de credenciales para Docker'){
             steps {
-                sh &quot;aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${env.ECR_URL}&quot;
+                sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${env.ECR_URL}"
             }
         }
     }
